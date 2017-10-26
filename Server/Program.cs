@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -32,11 +32,21 @@ namespace Server
                 Thread receive_thread = new Thread(ReceiveMessage);
                 receive_thread.Start(clientSocket);
             }
+            //RUN IN BACKGROUND CASE YOUR PROGRAM CONTAINS USER INTERFACE
+            /*Thread server_thread = new Thread(ListenClientConnect);
+            server_thread.IsBackground = true;
+            server_thread.Start();*/
         }
-        static void ListenClientConnect()
-        {
-         
-        }
+        /*static void ListenClientConnect()
+          {
+               while (true)
+              {
+                  Socket clientSocket = serverSocket.Accept();
+                  Thread receive_thread = new Thread(ReceiveMessage);
+                  receive_thread.Start(clientSocket);
+              }
+
+          }*/
         static void ReceiveMessage(object clientSocket)
         {
             Socket client_socket = (Socket)clientSocket;
@@ -47,9 +57,9 @@ namespace Server
                     int receiveNumber = client_socket.Receive(result);
                     //msg = The message recived by client;
                     string msg = Encoding.ASCII.GetString(result, 0, receiveNumber);
-                 /*this.Dispatcher.Invoke(() => {
-                   Execute Functions in Form or WPF Page. Example: Button Click, Void, etc...       
-                  });*/
+                    /*this.Dispatcher.Invoke(() => {
+                         Execute Functions in Form or WPF Page. Example: Button Click, Void, etc...       
+                    });*/
                 }
                 catch
                 {
