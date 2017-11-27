@@ -1,4 +1,4 @@
 # SocketClientServer
 This a simple Server and Client Socket.
 
-# Last update: Implemented the introduction in code and functions.
+# Last update: Best method of transmission from server, comments on code coming soon
