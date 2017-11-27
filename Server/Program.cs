@@ -1,78 +1,57 @@
 using System;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Net;
+using System.Net.Sockets;
 namespace Server
 {
     class Program
     {
-        // Declare bytes to recieve message
-        private static byte[] result = new byte[1024];
-        //  Declare new Socket Server
-        static Socket serverSocket;
+        const int port = 8007;
+        const string server_ip = "127.0.0.1";
+        public static IPAddress andress = IPAddress.Parse(server_ip);
+        public static TcpListener serverSocket = new TcpListener(andress, port);
         static void Main(string[] args)
         {
-            //This server IP(Default = 127.0.0.1[LOCAL])
-            IPAddress server_ip = IPAddress.Parse("127.0.0.1");
-            //This server PORT(Recommend: Using ports that the system is not using)
-            int port = 8007;
-            //Define Server Properties
-            serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try
-            {
-                //Configuring server and listen
-                serverSocket.Bind(new IPEndPoint(server_ip, port));
-                serverSocket.Listen(10);
-            }
-            catch 
-            {
-                //If server doesn't open this close or return null.
-                return;
-            }
-            //Program stop to recieve all messages.
+            serverSocket.Start();
+            //IF YOU WANT RUN THIS SERVER IN BACKGROUND, COMMENT THIS CODE IN LINE 18 EVEN LINE 29(Remove comment from line 31 until line 33)
+            TcpClient client = serverSocket.AcceptTcpClient();
             while (true)
             {
-                //Define client connect
-                Socket clientSocket = serverSocket.Accept();
-                //Await message
-                Thread receive_thread = new Thread(ReceiveMessage);
-                receive_thread.Start(clientSocket);
+                NetworkStream nwStream = client.GetStream();
+                byte[] buffer = new byte[client.ReceiveBufferSize];
+
+                int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize);
+
+                string dataReceived = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                Console.WriteLine(dataReceived);
+                nwStream.Write(buffer, 0, bytesRead);
             }
             //RUN IN BACKGROUND CASE YOUR PROGRAM CONTAINS USER INTERFACE
-            /*Thread server_thread = new Thread(ListenClientConnect);
-            server_thread.IsBackground = true;
-            server_thread.Start();*/
+            //Thread server_thread = new Thread(Method);
+            //server_thread.IsBackground = true;
+            //server_thread.Start();
         }
-        /*static void ListenClientConnect()
-          {
-               while (true)
-              {
-                  Socket clientSocket = serverSocket.Accept();
-                  Thread receive_thread = new Thread(ReceiveMessage);
-                  receive_thread.Start(clientSocket);
-              }
-
-          }*/
-        static void ReceiveMessage(object clientSocket)
+        static void Method()
         {
-            Socket client_socket = (Socket)clientSocket;
+            TcpClient cliente = serverSocket.AcceptTcpClient();
+            ListenClientConnect(cliente);
+
+        }
+        static void ListenClientConnect(TcpClient client)
+        {
             while (true)
             {
-                try
-                {
-                    int receiveNumber = client_socket.Receive(result);
-                    //msg = The message recived by client;
-                    string msg = Encoding.ASCII.GetString(result, 0, receiveNumber);
-                    /*this.Dispatcher.Invoke(() => {
-                         Execute Functions in Form or WPF Page. Example: Button Click, Void, etc...       
-                    });*/
-                }
-                catch
-                {
-                    break;
-                }
+                NetworkStream nwStream = client.GetStream();
+                byte[] buffer = new byte[client.ReceiveBufferSize];
+
+                int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize);
+
+                string dataReceived = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                Console.WriteLine(dataReceived);
+                nwStream.Write(buffer, 0, bytesRead);
             }
-        }
+          }
+      }
     }
-}
+
