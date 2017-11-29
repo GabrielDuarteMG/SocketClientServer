@@ -20,7 +20,6 @@ namespace ConsoleApp1
             {
                 Stream stream;
                 string msg = Console.ReadLine();
-                byte[] buffer = Encoding.ASCII.GetBytes(msg);
                 stream = Client.GetStream();
                 byte[] by = Encoding.UTF8.GetBytes(msg.ToCharArray(), 0, msg.Length);
                 stream.Write(by, 0, by.Length);
