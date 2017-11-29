@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace ConsoleApp1
 {
@@ -10,44 +10,22 @@ namespace ConsoleApp1
     {
         //Get arguments before send to server
         public static string[] arguments = Environment.GetCommandLineArgs();
-        //Declare Socket client
-        private static Socket clientSocket;
-
-        private static void Main(string[] args)
+        static TcpClient Client = new TcpClient();
+       static IPAddress address = IPAddress.Parse("127.0.0.1");
+        static int port = 8007;
+        private  static void Main(string[] args)
         {
-            //IP TO CONNECT
-            IPAddress address = IPAddress.Parse("127.0.0.1");
-            //PORT TO CONNECT
-            int port = 8007;
-            Program.clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try
-            {
-                //Connect server
-                Program.clientSocket.Connect((EndPoint)new IPEndPoint(address, port));
-            }
-            catch
-            {
-                //If Don't connect to server, this program return and close.
-                return;
-            }
-            //Loop Send Message
+            Client.Connect(address, port);
             while (true)
             {
+                Stream stream;
                 string msg = Console.ReadLine();
-                if (msg != null)
-                    send(msg);
+                byte[] buffer = Encoding.ASCII.GetBytes(msg);
+                stream = Client.GetStream();
+                byte[] by = Encoding.UTF8.GetBytes(msg.ToCharArray(), 0, msg.Length);
+                stream.Write(by, 0, by.Length);
+                stream.Flush();
             }
-            /*After connect to server, you send message to server using: send("DATA TO SEND");*/
-        }
-
-        static async void send(string SendThis)
-        {
-            //Client send the message if connection is stable
-            clientSocket.Send(Encoding.ASCII.GetBytes(SendThis));
-            /*TO AUTO-SENT OF THE FIRST ARGUMENT
-             * clientSocket.Send(Encoding.ASCII.GetBytes(Program.arguments[1]));*/
-            //Delay to bytes return and the program don't crash
-            await Task.Delay(100);
         }
     }
 }
